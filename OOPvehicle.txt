@@ -1,0 +1,67 @@
+public class Vehicle
+{
+  private String manufacturer;
+  private int cylinders;
+  private String owner;
+	
+  public Vehicle()
+  {
+    this("N/A", 0, "N/A");
+  }
+	
+  public Vehicle(String manufacturer, int cylinders, String owner)
+  {
+    this.setManufacturer(manufacturer);
+    this.setCylinders(cylinders);
+    this.setOwner(owner);
+  }
+
+  public String getManufacturer()
+  {
+    return manufacturer;
+  }
+
+  public void setManufacturer(String manufacturer)
+  {
+    this.manufacturer = manufacturer;
+  }
+
+  public int getCylinders()
+  {
+    return cylinders;
+  }
+
+  public void setCylinders(int cylinders)
+  {
+    this.cylinders = cylinders;
+  }
+
+  public String getOwner()
+  {
+    return owner;
+  }
+
+  public void setOwner(String owner)
+  {
+    this.owner = owner;
+  }
+	
+  public boolean equals(Object obj)
+  {
+    if(!(obj instanceof Vehicle))
+    {
+      return false;
+    }
+		
+    Vehicle other = (Vehicle)obj;
+    return this.manufacturer.equals(other.manufacturer) && 
+this.cylinders == other.cylinders;
+  }
+	
+  public String toString()
+  {
+    return "Manufacturer: " + this.manufacturer + "\n" +
+		"Cylinders: " + this.cylinders + "\n" +
+		"Owner: " + this.owner;
+  }
+}

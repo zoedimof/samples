@@ -1,0 +1,186 @@
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class FileAdder extends JFrame implements ActionListener
+{
+  private JTextField txtInFile;
+  private JTextField txtOutFile;
+  private JButton btnInFile;
+  private JButton btnOutFile;
+  private JButton btnProcess;
+  private JButton btnClear;
+  private File inFile;
+  private File outFile;
+	
+  public FileAdder()
+  {
+    Container canvas = this.getContentPane();
+    canvas.setLayout(new GridLayout(3, 1));
+		
+    canvas.add(createInputFilePanel());
+    canvas.add(createOutFilePanel());
+    canvas.add(createButtonPanel());
+		
+    this.setVisible(true);
+    this.setSize(770, 200);
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  }
+	
+  public JPanel createInputFilePanel()
+  {
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    panel.add(new JLabel("In File:"));
+    txtInFile = new JTextField(60);
+    panel.add(txtInFile);
+    btnInFile = new JButton("In File");
+    btnInFile.addActionListener(this);
+    panel.add(btnInFile);
+		
+    return panel;
+  }
+	
+  public JPanel createOutFilePanel()
+  {
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    panel.add(new JLabel("Out File:"));
+    txtOutFile = new JTextField(60);
+    panel.add(txtOutFile);
+    btnOutFile = new JButton("Out File");
+    btnOutFile.addActionListener(this);
+    panel.add(btnOutFile);
+		
+    return panel;
+  }
+	
+  public JPanel createButtonPanel()
+  {
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    btnProcess = new JButton("Process");
+    btnProcess.addActionListener(this);
+    panel.add(btnProcess);
+    btnClear = new JButton("Clear");
+    btnClear.addActionListener(this);
+    panel.add(btnClear);
+		
+   return panel;
+  }
+	
+  public static void main(String[] args)
+  {
+    new FileAdder();
+  }
+
+  @Override
+  public void actionPerformed(ActionEvent e)
+  {
+    if(e.getSource() == btnInFile)
+    {
+      JFileChooser jfcInFile = new JFileChooser();
+      if(jfcInFile.showOpenDialog(this) != JFileChooser.CANCEL_OPTION)
+      {
+        inFile = jfcInFile.getSelectedFile();
+        txtInFile.setText(inFile.getAbsolutePath());
+      }
+    }
+    if(e.getSource() == btnOutFile)
+    {
+      JFileChooser jfcOutFile = new JFileChooser();
+      if(jfcOutFile.showOpenDialog(this) != JFileChooser.CANCEL_OPTION)
+      {
+        outFile = jfcOutFile.getSelectedFile();
+        txtOutFile.setText(outFile.getAbsolutePath());
+      }
+    }
+    if(e.getSource() == btnProcess)
+    {
+      PrintWriter overwrite = null;
+      try
+      {
+        overwrite = new PrintWriter(txtOutFile.getText());
+        overwrite.print("");
+      }
+      catch (FileNotFoundException e1)
+      {
+        JOptionPane.showMessageDialog(null, "ERROR: Out file not found.");
+        txtOutFile.setText("");
+      }
+      finally
+      {
+        if(overwrite!=null)
+        {
+          overwrite.close();
+        }
+      }
+			
+      File file = new File(txtInFile.getText());
+      Scanner fin;
+      try
+      {
+        try
+        {
+          fin = new Scanner(file);
+          while(fin.hasNext())
+          {
+            Scanner line = new Scanner(fin.nextLine());
+            int sum = 0;
+            while(line.hasNext())
+            {
+              int nbr = line.nextInt();
+              sum += nbr;
+              PrintWriter fout = null;
+              try
+              {
+                fout = new PrintWriter(new FileOutputStream(new File(txtOutFile.getText()), true));
+                fout.print(line.hasNext() ? nbr + " + " : nbr +  " = " + sum + "\n");
+              }
+              catch(FileNotFoundException e1)
+              {
+                JOptionPane.showMessageDialog(null, "ERROR: Out file not found");
+                txtOutFile.setText("");
+              }
+              finally
+              {
+                if(fout!=null)
+                {
+                  fout.close();
+                }
+              }
+            }
+          }
+        }
+        catch (InputMismatchException e1)
+        {
+          JOptionPane.showMessageDialog(null, "ERROR: In file has incorrect format.");
+          txtInFile.setText("");
+        }
+      }
+      catch (FileNotFoundException e1)
+      {
+        JOptionPane.showMessageDialog(null, "ERROR: In file not found.");
+        txtInFile.setText("");
+      }
+    }
+    if(e.getSource() == btnClear)
+    {
+      txtInFile.setText("");
+      txtOutFile.setText("");
+    }
+  }
+}

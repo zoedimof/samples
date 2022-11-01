@@ -1,0 +1,264 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+typedef struct
+{
+  char firstName[10];
+  char lastName[15];
+  float percent;
+  char letter;
+}STUDENT;
+
+float calcPercent(void);
+float calcLabs(void);
+float calcExams(void);
+float calcFinal(void);
+char calcLetter(float);
+void flushStdin(void);
+
+void enterStudents(STUDENT[], int *);
+void sortByName(STUDENT *, int);
+void sortByGPA(STUDENT *, int);
+void writeFile(STUDENT[], int);
+void writeScreen(STUDENT[], int);
+
+#define NUMBER_OF_STUDENTS 30
+#define NUMBER_OF_LABS 8
+#define NUMBER_OF_EXAMS 3
+#define LAB_WEIGHT .4
+#define EXAM_WEIGHT .4
+#define FINAL_WEIGHT .2
+
+main()
+{
+  STUDENT stud[NUMBER_OF_STUDENTS] = { '\0' }; 
+  int count = 0;
+  int choice;
+
+  do
+  {
+    printf("\nMENU");
+    printf("\n\n1. Enter Students");
+    printf("\n2. GPA - SCREEN");
+    printf("\n3. GPA - FILE");
+    printf("\n4. NAME - SCREEN");
+    printf("\n5. NAME - FILE");
+    printf("\n0. Exit");
+    printf("\n\nEnter Choice: ");
+    scanf("%d", &choice);
+
+    switch (choice)
+    {
+    case 1: enterStudents(stud, &count);
+            break;
+    case 2: sortByGPA(&stud, count);
+            writeScreen(stud, count);
+            break;
+    case 3: sortByGPA(&stud, count);
+            writeFile(stud, count);
+            break;
+    case 4: sortByName(&stud, count);
+            writeScreen(stud, count);
+            break;
+    case 5: sortByName(&stud, count);
+            writeFile(stud, count);
+            break;
+    case 0: break;
+    default: printf("/n Options are 0-5");
+             system("pause");
+             break;
+    }
+
+    printf("\n\n");
+    system("pause");
+    system("cls");
+  } while (choice != 0);
+
+  return(0);
+}
+
+void enterStudents(STUDENT stud[], int * ptr_count)
+{
+  float percent;
+  char letter = 'A';
+
+  printf("\nEnter a student first name - (0) Exit: ");
+  flushStdin();
+  scanf("%9[^\n]s", stud[*ptr_count].firstName);
+
+  while (strcmp(stud[*ptr_count].firstName, "0"))
+  {
+    printf("\nEnter a student last name - (0) Exit: ");
+    flushStdin();
+    scanf("%14[^\n]s", stud[*ptr_count].lastName);
+
+    stud[*ptr_count].percent = calcPercent();
+    stud[*ptr_count].letter = calcLetter(stud[*ptr_count].percent);
+
+    if (*ptr_count == NUMBER_OF_STUDENTS - 2)
+    {
+      printf("Only one more.");
+    }
+    if (*ptr_count == NUMBER_OF_STUDENTS )
+    {
+      printf("Class full!");
+      system("pause");
+      break;
+    }
+
+    (*ptr_count)++;
+
+    printf("\nEnter a student first name - (0) Exit: ");
+    flushStdin();
+    scanf("%9[^\n]s", stud[*ptr_count].firstName);
+  }
+}
+
+void sortByName(STUDENT *ptr_stud, int count)
+{
+  STUDENT temp;
+  int i;
+  int x;
+
+  for (x = 0; x < count; x++)
+  {
+    for (i = 0; i < count - 1 - x; i++)
+    {
+      if (strcmp(ptr_stud[i].firstName, ptr_stud[i + 1].firstName) > 0)
+      {
+        temp = ptr_stud[i + 1];
+        ptr_stud[i + 1] = ptr_stud[i];
+        ptr_stud[i] = temp;
+      }
+    }
+  }
+}
+
+void sortByGPA(STUDENT *ptr_stud, int count)
+{
+  STUDENT temp;
+  int i;
+  int x;
+
+  for (x = 0; x < count; x++)
+  {
+    for (i = 0; i < count - 1 - x; i++)
+    {
+      if (ptr_stud[i].percent < ptr_stud[i + 1].percent)
+      {
+        temp = ptr_stud[i + 1];
+        ptr_stud[i + 1] = ptr_stud[i];
+        ptr_stud[i] = temp;
+      }
+    }
+  }
+}
+
+void writeFile(STUDENT stud[], int count)
+{
+  int i = 0;
+
+  FILE * rpt;
+  rpt = fopen("grades.txt", "w");
+  if (rpt == NULL)
+  {
+    printf("\n");
+    flushStdin(); getchar();
+    exit(0);
+  }
+
+  fprintf(rpt, "\n               GRADE REPORT\n\n");
+  fprintf(rpt, "Name          Percent          Letter\n");
+
+  for (i = 0; i < count; i++)
+  {
+    fprintf(rpt, "\n%s %-10s%-18.0f%c", stud[i].firstName, stud[i].lastName, stud[i].percent, stud[i].letter);
+  }
+
+  fprintf(rpt, "\n\nYou have %d students", count);
+  fclose(rpt);
+} 
+
+void writeScreen(STUDENT stud[], int count)
+{
+  int i = 0;
+  printf("\n               GRADE REPORT\n\n");
+  printf("Name          Percent          Letter\n");
+
+  for (i = 0; i < count; i++)
+  {
+    printf("\n%s %-10s%-18.0f%c", stud[i].firstName, stud[i].lastName, stud[i].percent, stud[i].letter);
+  }
+
+  printf("\n\nYou have %d students", count);
+}
+
+float calcPercent(void)
+{
+  return calcLabs() + calcExams() + calcFinal();
+}
+
+float calcLabs(void)
+{
+  float lab;
+  float accum = 0;
+  int labNbr = 1;
+
+  while (labNbr <= NUMBER_OF_LABS)
+  {
+    printf("\nEnter lab #%d score: ", labNbr);
+    flushStdin();
+    scanf("%f", &lab);
+
+    accum += lab;
+    labNbr++;
+  }
+
+  return (accum / NUMBER_OF_LABS) * LAB_WEIGHT;
+}
+
+float calcExams(void)
+{
+  float exam;
+  float accum = 0;
+  int examNbr = 1;
+
+  while (examNbr <= NUMBER_OF_EXAMS)
+  {
+    printf("\nEnter exam #%d score: ", examNbr);
+    flushStdin();
+    scanf("%f", &exam);
+
+    accum += exam;
+    examNbr++;
+  }
+
+  return (accum / NUMBER_OF_EXAMS) * EXAM_WEIGHT;
+}
+
+float calcFinal(void)
+{
+  float final;
+  printf("\nEnter final score: ");
+  flushStdin();
+  scanf("%f", &final);
+
+  return final *= FINAL_WEIGHT;
+}
+
+char calcLetter(float percent)
+{
+  if (percent >= 94) return 'A';
+  if (percent < 94 && percent >= 85) return 'B';
+  if (percent < 85 && percent >= 75) return 'C';
+  if (percent < 75 && percent >= 65) return 'D';
+  if (percent < 65) return 'F';
+}
+
+void flushStdin(void)
+{
+  int ch;
+  while (((ch = getchar()) != '\n') && (ch != EOF));
+}

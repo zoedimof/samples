@@ -1,0 +1,57 @@
+public class Truck extends Vehicle
+{
+  private double payload;
+  private int towingCapacity;
+	
+  public Truck()
+  {
+    this("N/A", 0, "N/A", 0, 0);
+  }
+	
+  public Truck(String manufacturer, int cylinders, String owner, double payload, int towingCapacity)
+  {
+    super(manufacturer, cylinders, owner);
+    this.setPayload(payload);
+    this.setTowingCapacity(towingCapacity);
+  }
+
+  public double getPayload()
+  {
+    return payload;
+  }
+
+  public void setPayload(double payload)
+  {
+    this.payload = payload;
+  }
+
+  public int getTowingCapacity()
+  {
+    return towingCapacity;
+  }
+
+  public void setTowingCapacity(int towingCapacity)
+  {
+    this.towingCapacity = towingCapacity;
+  }
+	
+  public boolean equals(Object obj)
+  {
+    if(!(obj instanceof Truck))
+    {
+      return false;
+    }
+		
+    Truck other = (Truck)obj;
+    return super.equals(obj) &&
+		this.payload == other.payload &&
+		this.towingCapacity == other.towingCapacity;
+  }
+	
+  public String toString()
+  {
+    return super.toString() + "\n" + 
+		"Payload: " + this.payload + "\n" +
+		"Towing Capacity: " + this.towingCapacity;
+  }
+}
